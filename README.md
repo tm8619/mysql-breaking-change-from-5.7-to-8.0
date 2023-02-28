@@ -117,13 +117,6 @@ Your MySQL connection id is 15
 Server version: 8.0.30 MySQL Community Server - GPL
 ```
 
-```
-mysql: [Warning] Using a password on the command line interface can be insecure.
-Welcome to the MySQL monitor.  Commands end with ; or \g.
-Your MySQL connection id is 8
-Server version: 5.7.41 MySQL Community Server (GPL)
-```
-
 ```.sql
 USE restriction_test;
 INSERT INTO threads(user_id, title) values("notFoundUser", "testTitle");
