@@ -1,6 +1,13 @@
 # mysql-breaking-change
-mysqlにログインして、以下のコマンドを実行
+今回はユーザーが掲示板でスレッドを立てられるシステムを設計します。
+ユーザーテーブルを作成し、そのユーザーがスレッドを立てられるようにします。
 
+その際、外部キー制約により以下の制約を加えます。
+- 存在しないユーザーがスレッドを立てられないように制限をかける
+- あるユーザーが立てたスレッドをすべて消さないと、そのユーザーを削除出来ないようにする
+
+
+dockerログイン後、以下コマンドでポート3320にmysql5.7, ポート3321にmysql8.0が立ちます。
 `docker-compose up -d`
 
 ### mysql5.7側の操作
@@ -14,7 +21,6 @@ mysql -h 127.0.0.1 --port 3321 -u root -proot
 ```
 
 ### 以下mysql5.7,8.0共通のユーザー作成
-
 restrictionユーザーはアプリ用のユーザーを想定し、最低限のDB操作のみ可能な権限を付与します。
 adminユーザーは例えばmigration用だったり、本番環境でのオペレーションなどに使用する想定でGRANT ALL PRIVILEGESにより全権限を付与しています。
 
@@ -38,15 +44,11 @@ CREATE TABLE `restriction_test`.`threads` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` VARCHAR(255) NOT NULL,
   `title` TEXT NOT NULL,
-  PRIMARY KEY (`id`));
-
-ALTER TABLE `restriction_test`.`threads`
-ADD INDEX `fk_threads_user_id_users_id_idx` (`user_id` ASC);
-
-ALTER TABLE `restriction_test`.`threads`
-ADD CONSTRAINT `fk_threads_user_id_users_id`
-  FOREIGN KEY (`user_id`)
-  REFERENCES `restriction_test`.`users` (`id`);
+  PRIMARY KEY (`id`),
+  INDEX `fk_threads_user_id_users_id_idx` (`user_id` ASC),
+  CONSTRAINT `fk_threads_user_id_users_id`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `restriction_test`.`users` (`id`));
 ```
 
 ### レコード挿入
